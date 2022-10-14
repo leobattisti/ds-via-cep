@@ -1,4 +1,10 @@
+import Addres from "../models/adress.js";
+import * as requestService from '../services/request-service.js';
+
 function State(){
+
+    this.Addres = new Addres();
+
     this.btnSave = null;
     this.btnClear = null;
     
@@ -26,5 +32,44 @@ export function init(){
     state.errorCep = document.querySelector('[data-error="cep"]');
     state.errorNumber = document.querySelector('[data-error="number"]');
 
-    console.log(state);
+    state.inputNumber.addEventListener('change', handleInputNumberChange);
+    state.btnClear.addEventListener('click', handleBtnClearClick);
+    state.btnSave.addEventListener('click', handleBtnSaveClick);
+
+}
+
+function handleInputNumberChange(event) {
+    if (event.target.value == ""){
+        setFormError("number", "Campo requerido");
+    } else {
+        setFormError("number", "");
+    }
+}
+
+async function handleBtnSaveClick(event) {
+    event.preventDefault();
+    const result = await requestService.getJson('https://viacep.com.br/ws/01001000/json/');
+    console.log(result);
+}
+
+function handleBtnClearClick(event){
+    event.preventDefault();
+    clearForm();
+}
+
+function clearForm(){
+    state.inputCep.value = "";
+    state.inputStreet.value = "";
+    state.inputNumber.value = "";
+    state.inputCity.value = "";
+
+    setFormError("cep", "");
+    setFormError("number", "");
+
+    state.inputCep.focus();
+}
+
+function setFormError(key, value) {
+    const element = document.querySelector(`[data-error="${key}"]`);
+    element.innerHTML = value;
 }
