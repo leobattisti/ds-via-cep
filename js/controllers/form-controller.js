@@ -37,9 +37,11 @@ export function init(){
     state.inputNumber.addEventListener('keyup', handleInputNumberKeryup);
     state.btnClear.addEventListener('click', handleBtnClearClick);
     state.btnSave.addEventListener('click', handleBtnSaveClick);
-    state.inputCep.addEventListener('change', handleInputCepChange)
-
+    state.inputCep.addEventListener('change', handleInputCepChange);
+    state.inputStreet.addEventListener('change', handleInputStreetChange);
 }
+
+
 
 async function handleInputCepChange(event){
     const cep = event.target.value;
@@ -48,7 +50,15 @@ async function handleInputCepChange(event){
         const address= await addressService.findByCep(cep);
 
         state.inputCity.value = address.city;
-        state.inputStreet.value = address.street;
+
+        if (address.street == ""){
+            document.getElementById("street").disabled = false;
+            address.street = document.getElementById("street").value;
+        } else {
+            state.inputStreet.value = address.street;
+            document.getElementById("street").disabled = true;
+        }
+       
         state.address = address;
     
         setFormError("cep", "");
@@ -59,6 +69,12 @@ async function handleInputCepChange(event){
         state.inputCity.value = ""; 
         setFormError("cep", "Informe um CEP válido!");
     }
+}
+
+
+function handleInputStreetChange(event){
+    state.address.street = event.target.value;
+    document.getElementById("street").disabled = false;
 }
 
 function handleBtnSaveClick(event) {
