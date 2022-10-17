@@ -1,9 +1,10 @@
-import Addres from "../models/adress.js";
+import Address from "../models/address.js";
 import * as addressService from '../services/address-service.js';
+import * as listController from './list-controller.js'
 
 function State(){
 
-    this.Addres = new Addres();
+    this.Address = new Address();
 
     this.btnSave = null;
     this.btnClear = null;
@@ -33,6 +34,7 @@ export function init(){
     state.errorNumber = document.querySelector('[data-error="number"]');
 
     state.inputNumber.addEventListener('change', handleInputNumberChange);
+    state.inputNumber.addEventListener('keyup', handleInputNumberKeryup);
     state.btnClear.addEventListener('click', handleBtnClearClick);
     state.btnSave.addEventListener('click', handleBtnSaveClick);
     state.inputCep.addEventListener('change', handleInputCepChange)
@@ -57,13 +59,24 @@ async function handleInputCepChange(event){
         state.inputCity.value = ""; 
         setFormError("cep", "Informe um CEP válido!");
     }
-
-    //console.log(address);
 }
 
-async function handleBtnSaveClick(event) {
+function handleBtnSaveClick(event) {
     event.preventDefault(); 
-    console.log(event.target);
+
+    const errors = addressService.getErrors(state.address);
+
+    const keys = Object.keys(errors);
+
+    if (keys.length > 0){
+        keys.forEach( key => {
+            setFormError(key, errors[key]);
+        })
+    }
+    else {
+        listController.addCard(state.address);
+        clearForm();
+    }
 }
 
 function handleInputNumberChange(event) {
@@ -72,6 +85,10 @@ function handleInputNumberChange(event) {
     } else {
         setFormError("number", "");
     }
+}
+
+function handleInputNumberKeryup(event){
+    state.address.number = event.target.value;
 }
 
 function handleBtnClearClick(event){
@@ -87,6 +104,8 @@ function clearForm(){
 
     setFormError("cep", "");
     setFormError("number", "");
+
+    state.address = new Address();
 
     state.inputCep.focus();
 }
